@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Icon, Segment, Modal } from "semantic-ui-react";
+import { Button, Card, Icon, Segment, Modal, Form, Input } from "semantic-ui-react";
 
 class App extends React.Component {
   constructor(props) {
@@ -9,11 +9,9 @@ class App extends React.Component {
       boasts: [],
       roasts: [],
       highest: [],
-      post: {
-        type_of_post: '',
-        title: '',
-        body: ''
-      },
+      type_of_post: '',
+      title: '',
+      body: '',
       deletekey: ''
     }
   }
@@ -27,23 +25,23 @@ class App extends React.Component {
   }
 
   handleDelete = (event) => {
-    // event.preventDefault();
+    console.log(event.target.value)
     this.setState({ deletekey: event.target.value });
   }
 
   handleType = (event) => {
-    // event.preventDefault();
-    this.setState({ type_of_post: event.target.value });
+    console.log(event.target.value)
+    this.setState({type_of_post: event.target.value } );
   }
 
   handleTitle = (event) => {
-    // event.preventDefault();
-    this.setState({ title: event.target.value });
+    console.log(event.target.value)
+    this.setState({title: event.target.value  });
   }
 
   handleBody = (event) => {
-    // event.preventDefault();
-    this.setState({ body: event.target.value });
+    console.log(event.target.value)
+    this.setState({  body: event.target.value } );
   }
 
   getPosts = (event) => {
@@ -62,7 +60,7 @@ class App extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
-        this.setState({ boasts: data, ghostposts: [], roasts: [], highest: []})
+        this.setState({ boasts: data, ghostposts: [], roasts: [], highest: [] })
       });
   };
 
@@ -72,7 +70,7 @@ class App extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
-        this.setState({ roasts: data , ghostposts: [], boasts: [], highest: []})
+        this.setState({ roasts: data, ghostposts: [], boasts: [], highest: [] })
       });
   };
 
@@ -82,25 +80,27 @@ class App extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
-        this.setState({ highest: data, ghostposts: [], roasts: [],  boasts: [] })
+        this.setState({ highest: data, ghostposts: [], roasts: [], boasts: [] })
       });
   };
 
   createPost = (event) => {
-    // event.preventDefault()
+    console.log(this.state.type_of_post)
+    console.log(this.state.title)
+    console.log(this.state.body)
     const requestBody = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type_of_post: this.state.post.type_of_post,
-        title: this.state.post.title,
-        body: this.state.post.body,
+        type_of_post: this.state.type_of_post,
+        title: this.state.title,
+        body: this.state.body,
       }),
     };
     fetch("http://localhost:8000/api/posts/", requestBody)
       .then((response) => response.json())
       .then((data) =>
-        console.log(
+        alert(
           `Please write this code down in case you ever want to delete this post: ${data.secret}`
         )
       )
@@ -117,23 +117,39 @@ class App extends React.Component {
       });
   };
 
-  submitUpVote = (id) => {
+  submitUpVote = (id, post) => {
     fetch(`http://localhost:8000/api/posts/${id}/up_vote/`, { method: "POST" })
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
         alert(data.status)
-        this.getPosts()
+        if (post === 'boast') {
+          this.getBoast()
+        } else if (post === 'roast') {
+          this.getRoast()
+        } else if (post === 'high') {
+          this.getHighest()
+        } else {
+          this.getPosts()
+        }
       });
   };
 
-  submitDownVote = (id) => {
+  submitDownVote = (id, post) => {
     fetch(`http://localhost:8000/api/posts/${id}/down_vote/`, { method: "POST", })
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
         alert(data.status)
-        this.getPosts()
+        if (post === 'boast') {
+          this.getBoast()
+        } else if (post === 'roast') {
+          this.getRoast()
+        } else if (post === 'high') {
+          this.getHighest()
+        } else {
+          this.getPosts()
+        }
       });
   };
 
@@ -170,44 +186,35 @@ class App extends React.Component {
             <Modal trigger={<Button inverted color='green'>CREATE POST</Button>} basic closeIcon size='small'>
               <Modal.Header>Create A Post</Modal.Header>
               <Modal.Actions>
-              <form form='createPost' onSubmit={() => this.createPost()}>
-                {/* <input
-                  name="newpost"
-                  type="text"
-                  placeholder="Enter B or R"
-                  value={this.state.post.type_of_post || ""}
-                  onChange={(event) => this.handleType(event)}
-                /> */}
-                <textarea
-                   name="newpost"
-                   type="text"
-                   placeholder="Enter B or R"
-                   value={this.state.post.type_of_post || ""}
-                   onChange={(event) => this.handleType(event)}
-                >
-                </textarea>
-                <br />
-                <input
-                  name="title"
-                  type="text"
-                  placeholder="Enter Title"
-                  value={this.state.post.title || ""}
-                  onChange={(event) => this.handleTitle(event)}
-                />
-                <br />
-                <input
-                  name="body"
-                  type="text"
-                  placeholder="Enter Body"
-                  value={this.state.post.body || ""}
-                  onChange={(event) => this.handleBody(event)}
-                />
-                <br />
-                <input type="submit" value="Create Post!" />
-              </form>
+                <Form form='createPost' onSubmit={() => this.createPost()}>
+                  <Input
+                    label={{ icon: 'asterisk' }}
+                    placeholder='Enter B or R'
+                    onChange={(event) => this.handleType(event)}
+                    fluid
+                  />
+                  <br />
+                  <Input
+                    label={{ icon: 'asterisk' }}
+                    placeholder='Enter Title'
+                    onChange={(event) => this.handleTitle(event)}
+                    fluid
+                  />
+                  <br />
+                  <Input
+                    label={{ icon: 'asterisk' }}
+                    placeholder='Enter Body'
+                    onChange={(event) => this.handleBody(event)}
+                    fluid
+                  />
+                  <br />
+                  <Input type="submit" value="Create Post!" fluid />
+                </Form>
               </Modal.Actions>
             </Modal>
-
+          </Segment>
+          <Segment inverted>
+            Welcome to GhostPost Machine™ The GhostPost Machine™ is a website where people can anonymously(no logging in needed) post Boasts or Roasts of whatever they want. There is a body character limit: 280 characters.
           </Segment>
           <Segment inverted>
             {this.state.ghostposts && (
@@ -227,12 +234,12 @@ class App extends React.Component {
 
                           <Icon
                             name="arrow alternate circle up"
-                            onClick={() => this.submitUpVote(post.id)}
+                            onClick={() => this.submitUpVote(post.id, '')}
                             size='large'
                           />
                           <Icon
                             name="arrow alternate circle down"
-                            onClick={() => this.submitDownVote(post.id)}
+                            onClick={() => this.submitDownVote(post.id, '')}
                             size='large'
                           />
                           <h3>{post.score}</h3>
@@ -241,16 +248,18 @@ class App extends React.Component {
                           <br />
                           <Modal trigger={<Button>Delete Post</Button>} basic closeIcon size='small'>
                             <Modal.Header>Delete This Post</Modal.Header>
-                            <form onSubmit={() => this.deletePost(post.id)}>
-                              <input
-                                name="deletekey"
-                                type="text"
+                            <Form onSubmit={() => this.deletePost(post.id)}>
+                              <Input
+                                label={{ icon: 'asterisk' }}
                                 placeholder="Post deletion code"
-                                value={this.state.deletekey || ""}
-                                onChange={(event) => this.handleDelete(event)}
+                                action={(event) => this.handleDelete(event)}
+                                fluid
+
                               />
-                              <input type="submit" value="Delete Post!" />
-                            </form>
+                              <Input type="submit" value="Delete Post!"
+                                fluid
+                              />
+                            </Form>
                           </Modal>
                         </Card.Content>
                       </Card.Content>
@@ -276,12 +285,12 @@ class App extends React.Component {
 
                           <Icon
                             name="arrow alternate circle up"
-                            onClick={() => this.submitUpVote(post.id)}
+                            onClick={() => this.submitUpVote(post.id, 'boast')}
                             size='large'
                           />
                           <Icon
                             name="arrow alternate circle down"
-                            onClick={() => this.submitDownVote(post.id)}
+                            onClick={() => this.submitDownVote(post.id, 'roast')}
                             size='large'
                           />
                           <h3>{post.score}</h3>
@@ -290,16 +299,17 @@ class App extends React.Component {
                           <br />
                           <Modal trigger={<Button>Delete Post</Button>} basic closeIcon size='small'>
                             <Modal.Header>Delete This Post</Modal.Header>
-                            <form onSubmit={() => this.deletePost(post.id)}>
-                              <input
-                                name="deletekey"
-                                type="text"
+                            <Form onSubmit={() => this.deletePost(post.id)}>
+                              <Input
+                                label={{ icon: 'asterisk' }}
                                 placeholder="Post deletion code"
-                                value={this.state.deletekey || ""}
                                 onChange={(event) => this.handleDelete(event)}
+                                fluid
                               />
-                              <input type="submit" value="Delete Post!" />
-                            </form>
+                              <Input type="submit" value="Delete Post!"
+                                fluid
+                              />
+                            </Form>
                           </Modal>
                         </Card.Content>
                       </Card.Content>
@@ -325,12 +335,12 @@ class App extends React.Component {
 
                           <Icon
                             name="arrow alternate circle up"
-                            onClick={() => this.submitUpVote(post.id)}
+                            onClick={() => this.submitUpVote(post.id, 'roast')}
                             size='large'
                           />
                           <Icon
                             name="arrow alternate circle down"
-                            onClick={() => this.submitDownVote(post.id)}
+                            onClick={() => this.submitDownVote(post.id, 'roast')}
                             size='large'
                           />
                           <h3>{post.score}</h3>
@@ -339,16 +349,17 @@ class App extends React.Component {
                           <br />
                           <Modal trigger={<Button>Delete Post</Button>} basic closeIcon size='small'>
                             <Modal.Header>Delete This Post</Modal.Header>
-                            <form onSubmit={() => this.deletePost(post.id)}>
-                              <input
-                                name="deletekey"
-                                type="text"
+                            <Form onSubmit={() => this.deletePost(post.id)}>
+                              <Input
+                                label={{ icon: 'asterisk' }}
                                 placeholder="Post deletion code"
-                                value={this.state.deletekey || ""}
                                 onChange={(event) => this.handleDelete(event)}
+                                fluid
                               />
-                              <input type="submit" value="Delete Post!" />
-                            </form>
+                              <Input type="submit" value="Delete Post!"
+                                fluid
+                              />
+                            </Form>
                           </Modal>
                         </Card.Content>
                       </Card.Content>
@@ -374,12 +385,12 @@ class App extends React.Component {
 
                           <Icon
                             name="arrow alternate circle up"
-                            onClick={() => this.submitUpVote(post.id)}
+                            onClick={() => this.submitUpVote(post.id, 'high')}
                             size='large'
                           />
                           <Icon
                             name="arrow alternate circle down"
-                            onClick={() => this.submitDownVote(post.id)}
+                            onClick={() => this.submitDownVote(post.id, 'high')}
                             size='large'
                           />
                           <h3>{post.score}</h3>
@@ -388,16 +399,19 @@ class App extends React.Component {
                           <br />
                           <Modal trigger={<Button>Delete Post</Button>} basic closeIcon size='small'>
                             <Modal.Header>Delete This Post</Modal.Header>
-                            <form onSubmit={() => this.deletePost(post.id)}>
-                              <input
-                                name="deletekey"
-                                type="text"
+                            <Form onSubmit={() => this.deletePost(post.id)}>
+                              <Input
+                                label={{ icon: 'asterisk' }}
                                 placeholder="Post deletion code"
-                                value={this.state.deletekey || ""}
                                 onChange={(event) => this.handleDelete(event)}
+                                fluid
                               />
-                              <input type="submit" value="Delete Post!" />
-                            </form>
+                              <Input
+                                type="submit"
+                                value="Delete Post!"
+                                fluid
+                              />
+                            </Form>
                           </Modal>
                         </Card.Content>
                       </Card.Content>
