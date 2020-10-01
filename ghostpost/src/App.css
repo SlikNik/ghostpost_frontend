@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  background: url(./images/ghostpost.jpg);
+  background-size: cover;
+  background-repeat: repeat;
 }
 
 .App-logo {
